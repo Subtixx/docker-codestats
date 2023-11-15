@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:9.6
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  codestats:
+    image: codestats
+    depends_on:
+      - postgres
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 5000:5000
+    environment:
+      DB_HOST: postgres
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_NAME: postgres
+      EMAIL_FROM_ADDRESS: "admin@local.host"
+      PORT: 5000
+      HOST: localhost
+      HOST_PORT: 5000
+      SECRET_KEY_BASE: "a02972d2a240dfb0a1634a95fe268af65635403abcad5758c176e0dc868cb47ac8ecbced27e47bd077244df5e0298e9b76d7bae0faaf9d43e6c32280cbb53f47"
+      SITE_NAME: "Code::Stats"
+      BETA_MODE: false
+      SOCIAL_LINKS: '[["Twitter", "https://twitter.com/code_stats"], ["Discord", "https://discord.gg/gyzRfjc"], ["Gitter", "https://gitter.im/code-stats/Lobby"], ["IRC", "irc://irc.freenode.net/codestats"], ["Matrix", "https://matrix.to/#/#code_stats:matrix.org"]]'
+      ANALYTICS_CODE: ""
+      DB_POOL_SIZE: 10
+      ADS_ENABLED: false
+      EA_PUBLISHER: "foobar"
+      GUMROAD_ACCESS_TOKEN: "abcd"
+
+volumes:
+  postgres-data:
